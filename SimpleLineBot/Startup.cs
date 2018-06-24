@@ -32,7 +32,6 @@ namespace SimpleLineBot {
             });
             services.AddSingleton(typeof(ILineBot), typeof(LineBot));
             services.AddScoped(typeof(LineBotService));
-
             services.InstallReplyProcess(Environment.ContentRootPath);
         }
 

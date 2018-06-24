@@ -12,7 +12,7 @@ namespace SimpleLineBot {
     public class LineBotService {
         public static List<Type> ReplyProcesses { get; set; }
         public ILineBot Bot { get; set; }
-        public IServiceProvider ServiceProvider { get; set; }
+        private IServiceProvider ServiceProvider { get; set; }
 
         public LineBotService(ILineBot lineBot, IServiceProvider serviceProvider) {
             Bot = lineBot;

@@ -51,6 +51,16 @@ namespace SimpleLineBot.Core {
         }
 
         private static void InstallReplayProcessFromDll(IServiceCollection services, string dllPath) {
+            var assemblyInstance = Assembly.LoadFile(dllPath);
+
+            var pluginPath = Path.GetDirectoryName(dllPath);
+
+            // plugin
+            foreach (var dll in Directory.GetFiles(pluginPath, "*.dll", SearchOption.AllDirectories)) {
+                System.Runtime.Loader.AssemblyLoadContext.Default
+                   .LoadFromAssemblyPath(dll);
+            }
+
             foreach (var type in Assembly.LoadFile(dllPath).GetTypes()) {
                 if (!type.GetInterfaces().Contains(typeof(ILineReplyProcess))) continue;
 

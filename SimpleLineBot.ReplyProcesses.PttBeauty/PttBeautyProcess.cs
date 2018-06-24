@@ -1,32 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using HtmlAgilityPack;
+using Line;
+using System;
 using System.Linq;
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using HtmlAgilityPack;
-using Line;
 
-namespace SimpleLineBot.ReplyProcesses.Common {
-    public class BeautyProcess : ILineReplyProcess {
+namespace SimpleLineBot.ReplyProcesses.PttBeauty {
+    public class PttBeautyProcess : ILineReplyProcess {
         public ILineBot Bot { get; set; }
 
-        public BeautyProcess(ILineBot bot) {
+        public Uri PostUrl { get; set; }
+        public string Title { get; set; }
+
+        public PttBeautyProcess(ILineBot bot) {
             Bot = bot;
         }
 
         public async Task<bool> Handle(ILineEvent e) {
             if (e.EventType != LineEventType.Message) return false;
 
-            if (e.Message?.Text?.IndexOf("妹子") != 0) return false;
+            Regex command = new Regex(@"\S*妹子!?$");
 
-            var command = e.Message?.Text.Split(' ');
+            if (!command.IsMatch(e.Message?.Text ?? "")) return false;
+
+            var keyword = e.Message.Text.Substring(0, e.Message.Text.IndexOf("妹子"));
 
             HttpClient client = new HttpClient();
             Uri image = null;
             int tryLimit = 25;
 
-            if (command.Length == 1) {
+            if (keyword.Length == 0) {
                 while (image == null && tryLimit > 0) {
                     var url = await GetImageUrl();
                     if (url != null) {
@@ -39,7 +43,7 @@ namespace SimpleLineBot.ReplyProcesses.Common {
                 }
             } else {
                 while (image == null && tryLimit > 0) {
-                    var url = await GetImageUrlByKeyword(command[1]);
+                    var url = await GetImageUrlByKeyword(keyword);
                     if (url != null) {
                         var response = await client.GetAsync(url);
                         if (response.IsSuccessStatusCode) {
@@ -59,10 +63,36 @@ namespace SimpleLineBot.ReplyProcesses.Common {
                         PreviewUrl = new Uri("https://img.moegirl.org/common/c/c4/Owabi.jpg")
                     });
             } else {
-                await Bot.Reply(e.ReplyToken, new ImageMessage() {
-                    Url = image,
-                    PreviewUrl = image
-                });
+                ISendMessage message;
+                if (e.Message.Text.Contains("!")) {
+                    message = new ImageMessage() {
+                        Url = image,
+                        PreviewUrl = image
+                    };
+                } else {
+                    message = new TemplateMessage() {
+                        Template = new ButtonsTemplate() {
+                            ImageSize = ImageSize.Contain,
+                            ImageAspectRatio = ImageAspectRatio.Square,
+                            Title = this.Title,
+                            Text = this.Title,
+                            ThumbnailUrl = image,
+                            Actions = new ITemplateAction[] {
+                            new UriAction() {
+                                Label = "前往看妹子",
+                                Url = PostUrl
+                            },
+                            new MessageAction() {
+                                Label ="再來一個妹子",
+                                Text = e.Message.Text
+                            }
+                        }
+                        },
+                        AlternativeText = "您的裝置不支援顯示此內容，請嘗試使用智慧型手機觀看或在指令後加入驚嘆號!"
+                    };
+
+                }
+                await Bot.Reply(e.ReplyToken, message);
             }
             return true;
         }
@@ -108,9 +138,17 @@ namespace SimpleLineBot.ReplyProcesses.Common {
                         .Select(x => x.Attributes["href"].Value)
                         .ToArray();
 
+                var targetPost = "https://www.ptt.cc" + posts[rand.Next(0, posts.Length)];
                 tempPage.LoadHtml(
-                    await client.GetStringAsync("https://www.ptt.cc" + posts[rand.Next(0, posts.Length)])
+                    await client.GetStringAsync(targetPost)
                 );
+
+                PostUrl = new Uri(targetPost);
+                Title = tempPage.DocumentNode.SelectSingleNode("//title").InnerText.Replace(" - 看板 Beauty - 批踢踢實業坊", "");
+
+                if (!Title.StartsWith("[正妹]")) {
+                    return null;
+                }
 
                 var pushs = tempPage.DocumentNode.SelectNodes("//div[contains(@class, 'push')]");
                 foreach (var push in pushs) {
@@ -178,9 +216,17 @@ namespace SimpleLineBot.ReplyProcesses.Common {
                         .Select(x => x.Attributes["href"].Value)
                         .ToArray();
 
+                var targetPost = "https://www.ptt.cc" + posts[rand.Next(0, posts.Length)];
                 tempPage.LoadHtml(
-                    await client.GetStringAsync("https://www.ptt.cc" + posts[rand.Next(0, posts.Length)])
+                    await client.GetStringAsync(targetPost)
                 );
+
+                PostUrl = new Uri(targetPost);
+                Title = tempPage.DocumentNode.SelectSingleNode("//title").InnerText.Replace(" - 看板 Beauty - 批踢踢實業坊", "");
+
+                if (!Title.StartsWith("[正妹]")) {
+                    return null;
+                }
 
                 var pushs = tempPage.DocumentNode.SelectNodes("//div[contains(@class, 'push')]");
                 foreach (var push in pushs) {
