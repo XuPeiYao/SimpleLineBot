@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Line;
 
-namespace SimpleLineBot.Services.PipeLines {
-    public class EchoProcess : IPipeLineProcess {
+namespace SimpleLineBot.ReplyProcesses.Common {
+    public class EchoProcess : ILineReplyProcess {
         public ILineBot Bot { get; set; }
         public EchoProcess(ILineBot bot) {
             Bot = bot;

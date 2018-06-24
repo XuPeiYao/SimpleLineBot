@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using HtmlAgilityPack;
 using Line;
 
-namespace SimpleLineBot.Services.PipeLines {
-    public class BeautyProcess : IPipeLineProcess {
+namespace SimpleLineBot.ReplyProcesses.Common {
+    public class BeautyProcess : ILineReplyProcess {
         public ILineBot Bot { get; set; }
 
         public BeautyProcess(ILineBot bot) {
@@ -24,7 +24,7 @@ namespace SimpleLineBot.Services.PipeLines {
 
             HttpClient client = new HttpClient();
             Uri image = null;
-            int tryLimit = 10;
+            int tryLimit = 25;
 
             if (command.Length == 1) {
                 while (image == null && tryLimit > 0) {
@@ -206,6 +206,5 @@ namespace SimpleLineBot.Services.PipeLines {
                 return null;
             }
         }
-
     }
 }
