@@ -28,7 +28,7 @@ namespace SimpleLineBot.ReplyModules.Common {
                     return true;
             }
 
-            Regex regex = new Regex(@"linebot (enable,disable) .+");
+            Regex regex = new Regex(@"linebot (enable|disable) .+");
 
             if (regex.IsMatch(e.Message?.Text ?? "")) {
                 var moduleName = e.Message.Text.Split(' ').Last();
