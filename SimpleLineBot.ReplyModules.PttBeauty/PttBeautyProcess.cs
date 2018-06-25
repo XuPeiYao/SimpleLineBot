@@ -6,8 +6,8 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace SimpleLineBot.ReplyProcesses.PttBeauty {
-    public class PttBeautyProcess : ILineReplyProcess {
+namespace SimpleLineBot.ReplyModules.PttBeauty {
+    public class PttBeautyProcess : ILineReplyModule {
         public ILineBot Bot { get; set; }
 
         public Uri PostUrl { get; set; }

@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace SimpleLineBot {
     public class LineBotService {
-        public static List<Type> ReplyProcesses { get; set; }
+        public static List<(Type type, bool enable)> ReplyModules { get; set; }
         public ILineBot Bot { get; set; }
         private IServiceProvider ServiceProvider { get; set; }
 
@@ -20,8 +20,10 @@ namespace SimpleLineBot {
         }
 
         public async Task EventHandle(ILineEvent e) {
-            foreach (var process in ReplyProcesses) {
-                var pipe = ServiceProvider.GetService(process) as ILineReplyProcess;
+            foreach (var module in ReplyModules) {
+                if (!module.enable) continue;
+
+                var pipe = ServiceProvider.GetService(module.type) as ILineReplyModule;
 
                 if (await pipe.Handle(e)) break;
             }

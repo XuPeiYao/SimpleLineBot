@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 
 namespace SimpleLineBot.Core {
-    public static class ReplyProcessInstallExtension {
+    public static class ReplyModuleInstallExtension {
         public static void InstallReplyProcess(
             this IServiceCollection services,
             string contentRootPath) {
@@ -30,10 +30,10 @@ namespace SimpleLineBot.Core {
                 result.AddRange(types);
             }
 
-            LineBotService.ReplyProcesses = new List<Type>();
+            LineBotService.ReplyModules = new List<(Type, bool)>();
             foreach (var type in result) {
-                if (!type.GetInterfaces().Contains(typeof(ILineReplyProcess))) continue;
-                LineBotService.ReplyProcesses.Add(type);
+                if (!type.GetInterfaces().Contains(typeof(ILineReplyModule))) continue;
+                LineBotService.ReplyModules.Add((type, true));
                 services.AddScoped(type);
             }
             #endregion
@@ -62,9 +62,9 @@ namespace SimpleLineBot.Core {
             }
 
             foreach (var type in Assembly.LoadFile(dllPath).GetTypes()) {
-                if (!type.GetInterfaces().Contains(typeof(ILineReplyProcess))) continue;
+                if (!type.GetInterfaces().Contains(typeof(ILineReplyModule))) continue;
 
-                LineBotService.ReplyProcesses.Add(type);
+                LineBotService.ReplyModules.Add((type, true));
                 services.AddScoped(type);
             }
         }
