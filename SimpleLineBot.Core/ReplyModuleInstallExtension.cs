@@ -8,7 +8,7 @@ using System.Text;
 
 namespace SimpleLineBot.Core {
     public static class ReplyModuleInstallExtension {
-        public static void InstallReplyProcess(
+        public static void InstallModules(
             this IServiceCollection services,
             string contentRootPath) {
             #region Internal Module
