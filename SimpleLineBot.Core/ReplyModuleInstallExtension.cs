@@ -55,6 +55,16 @@ namespace SimpleLineBot.Core {
                     InstallReplayProcessFromDll(services, dll);
                 }
             }
+
+            // 停用模組
+            using (var file = File.Open("disableModules.txt", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read)) {
+                var moduleNames = new StreamReader(file).ReadToEnd()?.Split(',') ?? new string[0];
+                moduleNames = moduleNames.Select(x => x.Trim()).Where(x => x.Length > 0).ToArray();
+                foreach (var moduleName in moduleNames) {
+                    var moduleIndex = LineBotService.ReplyModules.FindIndex(x => x.type.Name.ToLower() == moduleName.ToLower());
+                    LineBotService.ReplyModules[moduleIndex] = (LineBotService.ReplyModules[moduleIndex].type, false);
+                }
+            }
         }
 
         private static void InstallReplayProcessFromDll(IServiceCollection services, string dllPath) {
