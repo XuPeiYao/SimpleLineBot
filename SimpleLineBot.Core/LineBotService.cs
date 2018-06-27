@@ -13,6 +13,7 @@ namespace SimpleLineBot {
         public static List<(Type type, bool enable)> ReplyModules { get; set; }
         public ILineBot Bot { get; set; }
         private IServiceProvider ServiceProvider { get; set; }
+        public static string ContentRootPath { get; set; }
 
         public LineBotService(ILineBot lineBot, IServiceProvider serviceProvider) {
             Bot = lineBot;

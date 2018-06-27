@@ -1,16 +1,20 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Collections.Async;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SimpleLineBot.Core {
     public static class ReplyModuleInstallExtension {
         public static void InstallModules(
             this IServiceCollection services,
             string contentRootPath) {
+            LineBotService.ContentRootPath = contentRootPath;
+
             #region Internal Module
             List<Type> result = new List<Type>();
 
@@ -45,7 +49,7 @@ namespace SimpleLineBot.Core {
             }
 
             // plugin
-            foreach (var module in Directory.GetDirectories(pluginsPath)) {
+            Directory.GetDirectories(pluginsPath).ParallelForEachAsync(async module => {
                 foreach (var dll in Directory.GetFiles(module, "*.dll", SearchOption.AllDirectories)) {
                     System.Runtime.Loader.AssemblyLoadContext.Default
                         .LoadFromAssemblyPath(dll);
@@ -54,7 +58,7 @@ namespace SimpleLineBot.Core {
                 foreach (var dll in Directory.GetFiles(module, "*.dll", SearchOption.AllDirectories)) {
                     InstallReplayProcessFromDll(services, dll);
                 }
-            }
+            }).GetAwaiter().GetResult();
 
             // 停用模組
             using (var file = File.Open("disableModules.txt", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read)) {
@@ -71,8 +75,10 @@ namespace SimpleLineBot.Core {
             foreach (var type in Assembly.LoadFile(dllPath).GetTypes()) {
                 if (!type.GetInterfaces().Contains(typeof(ILineReplyModule))) continue;
 
-                LineBotService.ReplyModules.Add((type, true));
-                services.AddScoped(type);
+                lock (LineBotService.ReplyModules) {
+                    LineBotService.ReplyModules.Add((type, true));
+                    services.AddScoped(type);
+                }
             }
         }
     }

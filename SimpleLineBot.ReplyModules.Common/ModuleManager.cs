@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -43,7 +45,49 @@ namespace SimpleLineBot.ReplyModules.Common {
         }
 
         public async Task<bool> Help(ILineEvent e) {
-            await Bot.Reply(e.ReplyToken, new TextMessage($"您可以執行以下命令: enable disable list login logout"));
+            await Bot.Reply(e.ReplyToken, new TextMessage(
+                $"您可以執行以下命令: install uninstall enable disable list login logout stop"
+            ));
+            return true;
+        }
+
+        public async Task<bool> Install(ILineEvent e, string moduleName, string moduleZipPath) {
+            if (!SuperUsers.Contains(e.Source.User.Id)) {
+                await Bot.Reply(e.ReplyToken, new TextMessage($"無權限執行此命令"));
+                return true;
+            }
+
+            var client = new HttpClient();
+            var temp = Path.GetTempFileName();
+
+            using (var fileStream = File.Create(temp)) {
+                (await client.GetStreamAsync(moduleZipPath)).CopyTo(fileStream);
+            }
+
+            using (var fileStream = File.Open(temp, FileMode.Open))
+            using (ZipArchive arch = new ZipArchive(fileStream, ZipArchiveMode.Read, true)) {
+                arch.ExtractToDirectory(Path.Combine(LineBotService.ContentRootPath, "plugins", moduleName));
+            }
+
+            File.Delete(temp);
+
+            await Bot.Reply(e.ReplyToken, new TextMessage($"已安裝，請重啟服務"));
+
+            return true;
+        }
+
+        public async Task<bool> Uninstall(ILineEvent e, string moduleName) {
+            if (!SuperUsers.Contains(e.Source.User.Id)) {
+                await Bot.Reply(e.ReplyToken, new TextMessage($"無權限執行此命令"));
+                return true;
+            }
+
+            try {
+                Directory.Delete(Path.Combine(LineBotService.ContentRootPath, "plugins", moduleName), true);
+                await Bot.Reply(e.ReplyToken, new TextMessage($"已解除安裝，請重啟服務"));
+            } catch {
+                await Bot.Reply(e.ReplyToken, new TextMessage($"解除安裝失敗，請關閉服務後手動刪除目錄"));
+            }
             return true;
         }
 
