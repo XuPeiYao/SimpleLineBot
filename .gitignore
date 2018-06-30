@@ -261,3 +261,4 @@ __pycache__/
 *.pyc
 SimpleLineBot/plugins/
 SimpleLineBot/disableModules.txt
+SimpleLineBot/appsettings.Development.json
