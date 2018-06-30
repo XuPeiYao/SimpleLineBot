@@ -1,4 +1,6 @@
 ﻿using Line;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,6 +24,9 @@ namespace SimpleLineBot.ReplyModules.Common {
             Configuration = configuration;
             Bot = bot;
             Service = service;
+            if (SuperUsers == null) {
+                SuperUsers = new List<string>();
+            }
         }
         public async Task<bool> Handle(ILineEvent e) {
             if (e.EventType != LineEventType.Message) return false;
@@ -41,18 +46,20 @@ namespace SimpleLineBot.ReplyModules.Common {
                 return true;
             }
 
+            Console.WriteLine(parameters);
+
             return await ((Task<bool>)targetMethod.Invoke(this, new object[] { e }.Concat(parameters.Skip(1)).ToArray()));
         }
 
         public async Task<bool> Help(ILineEvent e) {
             await Bot.Reply(e.ReplyToken, new TextMessage(
-                $"您可以執行以下命令: install uninstall enable disable list login logout stop"
+                $"您可以執行以下命令: out install uninstall enable disable list login logout stop"
             ));
             return true;
         }
 
         public async Task<bool> Install(ILineEvent e, string moduleName, string moduleZipPath) {
-            if (!SuperUsers.Contains(e.Source.User.Id)) {
+            if (!SuperUsers.Contains((e.Source as IUser).Id)) {
                 await Bot.Reply(e.ReplyToken, new TextMessage($"無權限執行此命令"));
                 return true;
             }
@@ -77,7 +84,7 @@ namespace SimpleLineBot.ReplyModules.Common {
         }
 
         public async Task<bool> Uninstall(ILineEvent e, string moduleName) {
-            if (!SuperUsers.Contains(e.Source.User.Id)) {
+            if (!SuperUsers.Contains((e.Source as IUser).Id)) {
                 await Bot.Reply(e.ReplyToken, new TextMessage($"無權限執行此命令"));
                 return true;
             }
@@ -92,7 +99,7 @@ namespace SimpleLineBot.ReplyModules.Common {
         }
 
         public async Task<bool> Enable(ILineEvent e, string moduleName) {
-            if (!SuperUsers.Contains(e.Source.User.Id)) {
+            if (!SuperUsers.Contains((e.Source as IUser).Id)) {
                 await Bot.Reply(e.ReplyToken, new TextMessage($"無權限執行此命令"));
                 return true;
             }
@@ -116,7 +123,7 @@ namespace SimpleLineBot.ReplyModules.Common {
         }
 
         public async Task<bool> Disable(ILineEvent e, string moduleName) {
-            if (!SuperUsers.Contains(e.Source.User.Id)) {
+            if (!SuperUsers.Contains((e.Source as IUser).Id)) {
                 await Bot.Reply(e.ReplyToken, new TextMessage($"無權限執行此命令"));
                 return true;
             }
@@ -139,7 +146,7 @@ namespace SimpleLineBot.ReplyModules.Common {
         }
 
         public async Task<bool> List(ILineEvent e) {
-            if (!SuperUsers.Contains(e.Source.User.Id)) {
+            if (!SuperUsers.Contains((e.Source as IUser).Id)) {
                 await Bot.Reply(e.ReplyToken, new TextMessage($"無權限執行此命令"));
                 return true;
             }
@@ -152,11 +159,11 @@ namespace SimpleLineBot.ReplyModules.Common {
         }
 
         public async Task<bool> Logout(ILineEvent e) {
-            if (SuperUsers.Contains(e.Source.User.Id)) {
-                SuperUsers.Remove(e.Source.User.Id);
+            if (SuperUsers.Contains((e.Source as IUser).Id)) {
+                SuperUsers.Remove((e.Source as IUser).Id);
             }
 
-            var userProfile = await Bot.GetProfile(e.Source.User);
+            var userProfile = await Bot.GetProfile((e.Source as IUser).Id);
 
             await Bot.Reply(e.ReplyToken, new TextMessage($"{userProfile.DisplayName} 已經登出為一般使用者"));
 
@@ -168,18 +175,40 @@ namespace SimpleLineBot.ReplyModules.Common {
                 await Bot.Reply(e.ReplyToken, new TextMessage($"登入失敗，ChannelSecret錯誤"));
                 return true;
             }
+            Console.WriteLine(SuperUsers == null);
+            Console.WriteLine(JsonConvert.SerializeObject(e.Source, Formatting.Indented, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore }).ToString());
 
-            SuperUsers.Add(e.Source.User.Id);
+            SuperUsers.Add((e.Source as IUser).Id);
 
-            var userProfile = await Bot.GetProfile(e.Source.User);
+            var userProfile = await Bot.GetProfile((e.Source as IUser).Id);
 
             await Bot.Reply(e.ReplyToken, new TextMessage($"{userProfile.DisplayName} 已經登入為超級使用者"));
 
             return true;
         }
 
+        public async Task<bool> Out(ILineEvent e) {
+            if (!SuperUsers.Contains((e.Source as IUser).Id)) {
+                await Bot.Reply(e.ReplyToken, new TextMessage($"無權限執行此命令"));
+                return true;
+            }
+
+            await Bot.Reply(e.ReplyToken, new TextMessage($"BYE"));
+
+            switch (e.Source.SourceType) {
+                case EventSourceType.Group:
+                    await Bot.LeaveGroup(e.Source.Group);
+                    break;
+                case EventSourceType.Room:
+                    await Bot.LeaveRoom(e.Source.Room);
+                    break;
+            }
+
+            return true;
+        }
+
         public async Task<bool> Stop(ILineEvent e) {
-            if (!SuperUsers.Contains(e.Source.User.Id)) {
+            if (!SuperUsers.Contains((e.Source as IUser).Id)) {
                 await Bot.Reply(e.ReplyToken, new TextMessage($"無權限執行此命令"));
                 return true;
             }
