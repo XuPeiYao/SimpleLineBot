@@ -8,7 +8,7 @@ namespace SimpleLineBot {
     /// <summary>
     /// LINE機器人回應程序
     /// </summary>
-    public interface ILineReplyProcess {
+    public interface ILineReplyModule {
         /// <summary>
         /// 處理回應
         /// </summary>

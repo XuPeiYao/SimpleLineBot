@@ -32,7 +32,7 @@ namespace SimpleLineBot {
             });
             services.AddSingleton(typeof(ILineBot), typeof(LineBot));
             services.AddScoped(typeof(LineBotService));
-            services.InstallReplyProcess(Environment.ContentRootPath);
+            services.InstallModules(Environment.ContentRootPath);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -40,6 +40,15 @@ namespace SimpleLineBot {
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.Use(async (context, next) => {
+                Console.WriteLine("HasRequest");
+
+                await next();
+            });
+
+
+            app.UseMvc();
 
             app.Run(LineBotService.Run);
         }

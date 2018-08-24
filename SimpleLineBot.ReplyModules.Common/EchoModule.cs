@@ -4,10 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Line;
 
-namespace SimpleLineBot.ReplyProcesses.Common {
-    public class EchoProcess : ILineReplyProcess {
+namespace SimpleLineBot.ReplyModules.Common {
+    public class EchoModule : ILineReplyModule {
         public ILineBot Bot { get; set; }
-        public EchoProcess(ILineBot bot) {
+        public EchoModule(ILineBot bot) {
             Bot = bot;
         }
         public async Task<bool> Handle(ILineEvent e) {
