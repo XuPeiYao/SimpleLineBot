@@ -11,6 +11,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleLineBot.ReplyModules.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleLineBot.ReplyModules.PttBeauty", "SimpleLineBot.ReplyModules.PttBeauty\SimpleLineBot.ReplyModules.PttBeauty.csproj", "{80DF2A9C-CE41-4097-9CBD-4E95A3421A5A}"
 EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{1297F390-9C98-43CE-9D7B-00CFD230A92C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleLineBot.ReplyModules.GitHubCI", "SimpleLineBot.ReplyModules.GitHubCI\SimpleLineBot.ReplyModules.GitHubCI.csproj", "{66F92262-CC60-4150-84FA-CBB0AEA70DD4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{80DF2A9C-CE41-4097-9CBD-4E95A3421A5A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{80DF2A9C-CE41-4097-9CBD-4E95A3421A5A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{80DF2A9C-CE41-4097-9CBD-4E95A3421A5A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1297F390-9C98-43CE-9D7B-00CFD230A92C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1297F390-9C98-43CE-9D7B-00CFD230A92C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1297F390-9C98-43CE-9D7B-00CFD230A92C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1297F390-9C98-43CE-9D7B-00CFD230A92C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66F92262-CC60-4150-84FA-CBB0AEA70DD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66F92262-CC60-4150-84FA-CBB0AEA70DD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66F92262-CC60-4150-84FA-CBB0AEA70DD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66F92262-CC60-4150-84FA-CBB0AEA70DD4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

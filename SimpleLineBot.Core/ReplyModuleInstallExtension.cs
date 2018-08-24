@@ -18,11 +18,16 @@ namespace SimpleLineBot.Core {
             #region Internal Module
             List<Type> result = new List<Type>();
 
+            IMvcBuilder mvc = services.AddMvc();
+
             foreach (var assembly in Assembly
                 .GetEntryAssembly()
                 .GetReferencedAssemblies()
                 .Select(Assembly.Load)
                 .Concat(new Assembly[] { Assembly.GetEntryAssembly() })) {
+
+                mvc = mvc.AddApplicationPart(assembly);
+
                 Type[] types = null;
                 try {
                     types = assembly.GetTypes();
@@ -44,21 +49,25 @@ namespace SimpleLineBot.Core {
 
             var pluginsPath = Path.Combine(contentRootPath, "plugins");
 
+            Console.WriteLine($"PluginsPath: {pluginsPath}");
             if (!Directory.Exists(pluginsPath)) {
+                Console.WriteLine("建立plugins目錄");
                 Directory.CreateDirectory(pluginsPath);
             }
 
             // plugin
             Directory.GetDirectories(pluginsPath).ParallelForEachAsync(async module => {
+                Console.WriteLine("Install:" + module);
                 foreach (var dll in Directory.GetFiles(module, "*.dll", SearchOption.AllDirectories)) {
                     System.Runtime.Loader.AssemblyLoadContext.Default
                         .LoadFromAssemblyPath(dll);
-
                 }
                 foreach (var dll in Directory.GetFiles(module, "*.dll", SearchOption.AllDirectories)) {
-                    InstallReplayProcessFromDll(services, dll);
+                    InstallReplayProcessFromDll(services, mvc, dll);
                 }
             }).GetAwaiter().GetResult();
+
+            mvc = mvc.AddControllersAsServices();
 
             // 停用模組
             using (var file = File.Open("disableModules.txt", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read)) {
@@ -71,8 +80,12 @@ namespace SimpleLineBot.Core {
             }
         }
 
-        private static void InstallReplayProcessFromDll(IServiceCollection services, string dllPath) {
-            foreach (var type in Assembly.LoadFile(dllPath).GetTypes()) {
+        private static void InstallReplayProcessFromDll(IServiceCollection services, IMvcBuilder mvc, string dllPath) {
+            var assembly = Assembly.LoadFile(dllPath);
+
+            mvc = mvc.AddApplicationPart(assembly);
+
+            foreach (var type in assembly.GetTypes()) {
                 if (!type.GetInterfaces().Contains(typeof(ILineReplyModule))) continue;
 
                 lock (LineBotService.ReplyModules) {

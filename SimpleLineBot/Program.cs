@@ -17,7 +17,7 @@ namespace SimpleLineBot {
         public static IWebHost BuildWebHost(string[] args) {
             var config = WebHost.CreateDefaultBuilder(args);
 
-            config.UseUrls("http://*:53910");
+            config.UseUrls("http://*:80");
 
             return config
                 .UseStartup<Startup>()

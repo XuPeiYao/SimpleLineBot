@@ -21,6 +21,8 @@ namespace SimpleLineBot {
         }
 
         public async Task EventHandle(ILineEvent e) {
+            Console.WriteLine($"Request: {e.EventType}");
+
             foreach (var module in ReplyModules) {
                 if (!module.enable) continue;
 
@@ -47,6 +49,8 @@ namespace SimpleLineBot {
         /// DI進入點
         /// </summary>
         public static Task Run(HttpContext context) {
+            Console.WriteLine($"Request {DateTime.Now}");
+
             return context.RequestServices.GetService<LineBotService>().Handle(context);
         }
     }

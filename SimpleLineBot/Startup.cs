@@ -41,6 +41,15 @@ namespace SimpleLineBot {
                 app.UseDeveloperExceptionPage();
             }
 
+            app.Use(async (context, next) => {
+                Console.WriteLine("HasRequest");
+
+                await next();
+            });
+
+
+            app.UseMvc();
+
             app.Run(LineBotService.Run);
         }
     }

@@ -53,7 +53,14 @@ namespace SimpleLineBot.ReplyModules.Common {
 
         public async Task<bool> Help(ILineEvent e) {
             await Bot.Reply(e.ReplyToken, new TextMessage(
-                $"您可以執行以下命令: out install uninstall enable disable list login logout stop"
+                $"您可以執行以下命令: out whoami install uninstall enable disable list login logout stop"
+            ));
+            return true;
+        }
+
+        public async Task<bool> Whoami(ILineEvent e) {
+            await Bot.Reply(e.ReplyToken, new TextMessage(
+                e.Source.Group?.Id ?? e.Source.Room?.Id ?? e.Source.User?.Id
             ));
             return true;
         }

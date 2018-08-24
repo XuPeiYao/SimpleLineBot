@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  simplelinebot:
+    image: ${DOCKER_REGISTRY}simplelinebot
+    build:
+      context: .
+      dockerfile: SimpleLineBot/Dockerfile
