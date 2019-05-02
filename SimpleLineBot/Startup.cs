@@ -10,6 +10,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SimpleLineBot.Core;
+using SimpleLineBot.ReplyModules.Common;
+using SimpleLineBot.ReplyModules.GitHubCI.Controllers;
+using SimpleLineBot.ReplyModules.PttBeauty;
 
 namespace SimpleLineBot {
     public class Startup {
@@ -32,7 +35,16 @@ namespace SimpleLineBot {
             });
             services.AddSingleton(typeof(ILineBot), typeof(LineBot));
             services.AddScoped(typeof(LineBotService));
-            services.InstallModules(Environment.ContentRootPath);
+            //services.InstallModules(Environment.ContentRootPath);
+
+            LineBotService.ReplyModules = new List<(Type type, bool enable)>();
+
+            LineBotService.ReplyModules.Add((typeof(EchoModule), true));
+            services.AddScoped(typeof(EchoModule));
+            LineBotService.ReplyModules.Add((typeof(PttBeautyProcess), true));
+            services.AddScoped(typeof(PttBeautyProcess));
+
+            services.AddMvc().AddApplicationPart(typeof(CiController).Assembly);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

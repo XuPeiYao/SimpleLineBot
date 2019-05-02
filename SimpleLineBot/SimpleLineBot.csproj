@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.4" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,6 +19,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SimpleLineBot.Core\SimpleLineBot.Core.csproj" />
+    <ProjectReference Include="..\SimpleLineBot.ReplyModules.Common\SimpleLineBot.ReplyModules.Common.csproj" />
+    <ProjectReference Include="..\SimpleLineBot.ReplyModules.GitHubCI\SimpleLineBot.ReplyModules.GitHubCI.csproj" />
+    <ProjectReference Include="..\SimpleLineBot.ReplyModules.PttBeauty\SimpleLineBot.ReplyModules.PttBeauty.csproj" />
   </ItemGroup>
 
 </Project>

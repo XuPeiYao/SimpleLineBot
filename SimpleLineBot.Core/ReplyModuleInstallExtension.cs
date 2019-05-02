@@ -39,12 +39,15 @@ namespace SimpleLineBot.Core {
                 result.AddRange(types);
             }
 
+            /*
             LineBotService.ReplyModules = new List<(Type, bool)>();
             foreach (var type in result) {
                 if (!type.GetInterfaces().Contains(typeof(ILineReplyModule))) continue;
                 LineBotService.ReplyModules.Add((type, true));
                 services.AddScoped(type);
             }
+            */
+
             #endregion
 
             var pluginsPath = Path.Combine(contentRootPath, "plugins");
@@ -58,12 +61,16 @@ namespace SimpleLineBot.Core {
             // plugin
             Directory.GetDirectories(pluginsPath).ParallelForEachAsync(async module => {
                 Console.WriteLine("Install:" + module);
-                foreach (var dll in Directory.GetFiles(module, "*.dll", SearchOption.AllDirectories)) {
-                    System.Runtime.Loader.AssemblyLoadContext.Default
-                        .LoadFromAssemblyPath(dll);
-                }
-                foreach (var dll in Directory.GetFiles(module, "*.dll", SearchOption.AllDirectories)) {
-                    InstallReplayProcessFromDll(services, mvc, dll);
+                try {
+                    foreach (var dll in Directory.GetFiles(module, "*.dll", SearchOption.AllDirectories)) {
+                        System.Runtime.Loader.AssemblyLoadContext.Default
+                            .LoadFromAssemblyPath(dll);
+                    }
+                    foreach (var dll in Directory.GetFiles(module, "*.dll", SearchOption.AllDirectories)) {
+                        InstallReplayProcessFromDll(services, mvc, dll);
+                    }
+                } catch {
+                    Console.WriteLine("Install ERROR:" + module);
                 }
             }).GetAwaiter().GetResult();
 
